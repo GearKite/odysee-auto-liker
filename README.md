@@ -6,9 +6,9 @@ This userscript automatically likes videos on [Odysee](https://odysee.com/).
 
 1. This is a userscript. To use it you'll first need one of the following browser extensions:
 
-[Tampermonkey](https://www.tampermonkey.net/) (Firefox, Chrome, Edge, Safari, Opera, Dolphin browser, UC browser)
-[Greasemonkey](https://www.greasespot.net/) (Firefox)
-[Violentmonkey](https://violentmonkey.github.io/get-it/) (Firefox, Chrome, Edge, Opera (with Install Chrome Extensions extension))
+[Tampermonkey](https://www.tampermonkey.net/) (Firefox, Chrome, Edge, Safari, Opera, Dolphin browser, UC browser)  
+[Greasemonkey](https://www.greasespot.net/) (Firefox)  
+[Violentmonkey](https://violentmonkey.github.io/get-it/) (Firefox, Chrome, Edge, Opera (with Install Chrome Extensions extension))  
 
 2. Then install this script from one of the following links:
    * [GitHub](https://github.com/Jekabs123/odysee-auto-liker/raw/master/odysee-auto-liker.user.js) (Recommended)
