@@ -1,26 +1,21 @@
 // ==UserScript==
-// @name           YouTube Auto-Liker
-// @name:zh        YouTube自動點讚
-// @name:ja        YouTubeのような自動
-// @namespace      https://github.com/HatScripts/youtube-auto-liker
-// @version        1.3.5
-// @description    Automatically likes videos of channels you're subscribed to
-// @description:zh 對您訂閲的頻道視頻自動點讚
-// @description:ja 購読しているチャンネルの動画が自動的に好きです
-// @description:ru Автоматически нравится видео каналов, на которые вы подписаны
-// @description:es Le gustan automáticamente los videos de los canales a los que está suscrito
-// @description:pt Gosta automaticamente de vídeos de canais nos quais você está inscrito
-// @author         HatScripts
+// @name           Odysee Auto-Liker
+// @namespace      https://github.com/Jekabs123/odysee-auto-liker
+// @version        1.0
+// @description    Automatically likes Odysee videos
+// @author         Jekabs123 (fork from https://github.com/HatScripts/youtube-auto-liker)
 // @license        MIT
-// @icon           https://raw.githubusercontent.com/HatScripts/youtube-auto-liker/master/logo.svg
-// @match          http://*.youtube.com/*
-// @match          https://*.youtube.com/*
+// @icon           https://raw.githubusercontent.com/Jekabs123/odysee-auto-liker/master/logo.svg
+// @match          http*://odysee.com/*
 // @require        https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_registerMenuCommand
 // @run-at         document-idle
 // @noframes
+// @supportURL     https://github.com/Jekabs123/odysee-auto-liker/issues/
+// @updateURL      https://github.com/Jekabs123/odysee-auto-liker/blob/master/odysee-auto-liker.user.js
+// @downloadURL    https://github.com/Jekabs123/odysee-auto-liker/blob/master/odysee-auto-liker.user.js
 // ==/UserScript==
 
 /* global GM_config, GM_info, GM_registerMenuCommand */
@@ -52,11 +47,6 @@
         max: 100,
         default: 50,
         title: 'The percentage watched to like the video at'
-      },
-      HIDE_LIKE_NOTIFICATION: {
-        label: 'Hide like notification',
-        type: 'checkbox',
-        default: false
       },
       LIKE_IF_NOT_SUBSCRIBED: {
         label: 'Like if not subscribed',
@@ -91,43 +81,28 @@
   const DEBUG = new Debugger(GM_info.script.name, GM_config.get('DEBUG_MODE'))
 
   const SELECTORS = {
-    PLAYER: '#movie_player',
-    SUBSCRIBE_BUTTON: '#subscribe-button > ytd-subscribe-button-renderer > tp-yt-paper-button',
-    LIKE_BUTTON: 'ytd-video-primary-info-renderer #top-level-buttons-computed > ytd-toggle-button-renderer:nth-child(1)',
-    NOTIFICATION: 'ytd-popup-container'
+    PLAYER: 'video',
   }
-  const LIKE_BUTTON_CLICKED_CLASS = 'style-default-active'
+  const LIKE_BUTTON_CLICKED_CLASS = 'button--fire'
 
   const autoLikedVideoIds = []
 
   setTimeout(wait, GM_config.get('CHECK_FREQUENCY'))
 
   function getVideoId () {
-    const elem = document.querySelector('#page-manager > ytd-watch-flexy')
-    if (elem && elem.hasAttribute('video-id')) {
-      return elem.getAttribute('video-id')
-    } else {
-      return new URLSearchParams(window.location.search).get('v')
-    }
+    return location.pathname
   }
 
   function watchThresholdReached () {
     const player = document.querySelector(SELECTORS.PLAYER)
     if (player) {
-      return player.getCurrentTime() / player.getDuration() >= (GM_config.get('WATCH_THRESHOLD') / 100)
+      return player.currentTime / player.duration >= (GM_config.get('WATCH_THRESHOLD') / 100)
     }
     return true
   }
 
   function isSubscribed () {
-    DEBUG.info('Checking whether subscribed...')
-    const subscribeButton = document.querySelector(SELECTORS.SUBSCRIBE_BUTTON)
-    if (!subscribeButton) {
-      throw Error('Couldn\'t find sub button')
-    }
-    const subscribed = subscribeButton.hasAttribute('subscribed')
-    DEBUG.info(subscribed ? 'We are subscribed' : 'We are not subscribed')
-    return subscribed
+    return document.getElementsByClassName("icon icon--HeartSolid color-override").length == 1
   }
 
   function wait () {
@@ -143,24 +118,9 @@
     setTimeout(wait, GM_config.get('CHECK_FREQUENCY'))
   }
 
-  function hideLikeNotification () {
-    DEBUG.info('Trying to hide notification...')
-    const notification = document.querySelector(SELECTORS.NOTIFICATION)
-    if (notification) {
-      DEBUG.info('Found notification. Hiding it...')
-      notification.style.display = 'none'
-      setTimeout(() => {
-        DEBUG.info('Un-hiding notification')
-        notification.style.removeProperty('display')
-      }, 5000)
-    } else {
-      DEBUG.info('Couldn\'t find notification')
-    }
-  }
-
   function like () {
     DEBUG.info('Trying to like video...')
-    const likeButton = document.querySelector(SELECTORS.LIKE_BUTTON)
+    const likeButton = document.getElementsByClassName("section__actions section__actions--no-margin")[0].children[0]
     if (!likeButton) {
       throw Error('Couldn\'t find like button')
     }
@@ -173,9 +133,6 @@
         'have un-liked it, so we won\'t like it again')
     } else {
       DEBUG.info('Found like button')
-      if (GM_config.get('HIDE_LIKE_NOTIFICATION')) {
-        hideLikeNotification()
-      }
       DEBUG.info('It\'s unclicked. Clicking it...')
       likeButton.click()
       autoLikedVideoIds.push(videoId)
