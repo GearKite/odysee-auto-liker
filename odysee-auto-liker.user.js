@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Odysee Auto-Liker
 // @namespace      https://github.com/Jekabs123/odysee-auto-liker
-// @version        1.0.1
+// @version        1.0.2
 // @description    Automatically likes Odysee videos
 // @author         Jekabs123 (fork from https://github.com/HatScripts/youtube-auto-liker)
 // @license        MIT
@@ -120,7 +120,7 @@
 
   function like () {
     DEBUG.info('Trying to like video...')
-    const likeButton = document.getElementsByClassName("section__actions section__actions--no-margin")[0].children[0]
+    const likeButton = document.getElementsByClassName("button button--no-style button--file-action")[1].children[0]
     if (!likeButton) {
       throw Error('Couldn\'t find like button')
     }
