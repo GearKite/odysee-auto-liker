@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Odysee Auto-Liker
 // @namespace      https://github.com/Jekabs123/odysee-auto-liker
-// @version        1.0.3.1
+// @version        1.0.3.2
 // @description    Automatically likes Odysee videos
 // @author         Jekabs123 (fork from https://github.com/HatScripts/youtube-auto-liker)
 // @license        MIT
@@ -14,8 +14,8 @@
 // @run-at         document-idle
 // @noframes
 // @supportURL     https://github.com/Jekabs123/odysee-auto-liker/issues/
-// @updateURL      https://github.com/Jekabs123/odysee-auto-liker/blob/master/odysee-auto-liker.user.js
-// @downloadURL    https://github.com/Jekabs123/odysee-auto-liker/blob/master/odysee-auto-liker.user.js
+// @updateURL      https://github.com/Jekabs123/odysee-auto-liker/raw/master/odysee-auto-liker.user.js
+// @downloadURL    https://github.com/Jekabs123/odysee-auto-liker/raw/master/odysee-auto-liker.user.js
 // ==/UserScript==
 
 /* global GM_config, GM_info, GM_registerMenuCommand */
