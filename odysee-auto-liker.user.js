@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Odysee Auto-Liker
 // @namespace      https://github.com/Jekabs123/odysee-auto-liker
-// @version        1.0.2
+// @version        1.0.3
 // @description    Automatically likes Odysee videos
 // @author         Jekabs123 (fork from https://github.com/HatScripts/youtube-auto-liker)
 // @license        MIT
@@ -83,11 +83,11 @@
   const SELECTORS = {
     PLAYER: 'video',
   }
-  const LIKE_BUTTON_CLICKED_CLASS = 'button--fire'
+  const LIKE_BUTTON_CLICKED_CLASS = 'icon--FireActive'
 
   const autoLikedVideoIds = []
 
-  setTimeout(wait, GM_config.get('CHECK_FREQUENCY'))
+  setTimeout(wait, 5000)
 
   function getVideoId () {
     return location.pathname
@@ -96,7 +96,7 @@
   function watchThresholdReached () {
     const player = document.querySelector(SELECTORS.PLAYER)
     if (player && player.clientHeight > 288) {
-      return player.currentTime / player.duration >= (GM_config.get('WATCH_THRESHOLD') / 100)
+      return player.currentTime / player.duration >= (50 / 100)
     }
     return false
   }
@@ -125,7 +125,7 @@
       throw Error('Couldn\'t find like button')
     }
     const videoId = getVideoId()
-    if (likeButton.classList.contains(LIKE_BUTTON_CLICKED_CLASS)) {
+    if (likeButton.children[0].classList.contains(LIKE_BUTTON_CLICKED_CLASS)) {
       DEBUG.info('Like button has already been clicked')
       autoLikedVideoIds.push(videoId)
     } else if (autoLikedVideoIds.includes(videoId)) {
