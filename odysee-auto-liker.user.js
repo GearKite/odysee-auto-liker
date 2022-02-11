@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Odysee Auto-Liker
 // @namespace      https://github.com/Jekabs123/odysee-auto-liker
-// @version        1.0.3
+// @version        1.0.3.1
 // @description    Automatically likes Odysee videos
 // @author         Jekabs123 (fork from https://github.com/HatScripts/youtube-auto-liker)
 // @license        MIT
@@ -87,8 +87,8 @@
 
   const autoLikedVideoIds = []
 
-  setTimeout(wait, 5000)
-
+  setTimeout(wait, GM_config.get('CHECK_FREQUENCY'))
+  
   function getVideoId () {
     return location.pathname
   }
@@ -96,7 +96,7 @@
   function watchThresholdReached () {
     const player = document.querySelector(SELECTORS.PLAYER)
     if (player && player.clientHeight > 288) {
-      return player.currentTime / player.duration >= (50 / 100)
+      return player.currentTime / player.duration >= (GM_config.get('WATCH_THRESHOLD') / 100)
     }
     return false
   }
