@@ -35,5 +35,4 @@ Option                   | Description                                          
 
 ## Acknowledgements
 
-* The userscript itself was inspired by [this one](https://greasyfork.org/en/scripts/4948-youtube-auto-like-videos) by JoeSimmons, which hasn't worked since 2015
-* The debugger code was adapted from [this Stack Overflow answer](https://stackoverflow.com/a/32928812/2203482) by arctelix
+* The userscript is a fork of [youtube-auto-liker](https://github.com/HatScripts/youtube-auto-liker)
