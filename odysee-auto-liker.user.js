@@ -1,11 +1,11 @@
 // ==UserScript==
 // @name           Odysee Auto-Liker
-// @namespace      https://github.com/Jekabs123/odysee-auto-liker
-// @version        1.0.3.3
+// @namespace      https://github.com/Kite8409/odysee-auto-liker
+// @version        1.0.4
 // @description    Automatically likes Odysee videos
-// @author         Jekabs123 (fork from https://github.com/HatScripts/youtube-auto-liker)
+// @author         Kite8409 (fork from https://github.com/HatScripts/youtube-auto-liker)
 // @license        MIT
-// @icon           https://raw.githubusercontent.com/Jekabs123/odysee-auto-liker/master/logo.svg
+// @icon           https://raw.githubusercontent.com/Kite8409/odysee-auto-liker/master/logo.svg
 // @match          http*://odysee.com/*
 // @require        https://openuserjs.org/src/libs/sizzle/GM_config.js
 // @grant          GM_getValue
@@ -13,9 +13,9 @@
 // @grant          GM_registerMenuCommand
 // @run-at         document-idle
 // @noframes
-// @supportURL     https://github.com/Jekabs123/odysee-auto-liker/issues/
-// @updateURL      https://github.com/Jekabs123/odysee-auto-liker/raw/master/odysee-auto-liker.user.js
-// @downloadURL    https://github.com/Jekabs123/odysee-auto-liker/raw/master/odysee-auto-liker.user.js
+// @supportURL     https://github.com/Kite8409/odysee-auto-liker/issues/
+// @updateURL      https://github.com/Kite8409/odysee-auto-liker/raw/master/odysee-auto-liker.user.js
+// @downloadURL    https://github.com/Kite8409/odysee-auto-liker/raw/master/odysee-auto-liker.user.js
 // ==/UserScript==
 
 /* global GM_config, GM_info, GM_registerMenuCommand */
@@ -49,10 +49,10 @@
         title: 'The percentage watched to like the video at'
       },
       LIKE_IF_NOT_SUBSCRIBED: {
-        label: 'Like if not subscribed',
+        label: 'Like if not following',
         type: 'checkbox',
-        default: false,
-        title: 'Like videos from channels you are not subscribed to'
+        default: true,
+        title: 'Like videos from channels you are not following'
       }
     }
   })
@@ -79,11 +79,14 @@
   }
 
   const DEBUG = new Debugger(GM_info.script.name, GM_config.get('DEBUG_MODE'))
-
+  // Define CSS selectors
   const SELECTORS = {
     PLAYER: 'video',
+    FIRE_BUTTON: 'button.button-like:nth-child(1)',
+    FIRE_BUTTON_CLICKED_CLASS: 'button--fire',
+    FOLLOW_BUTTON: '.button-group > button:nth-child(1)',
+    FOLLOW_BUTTON_CLICKED_CLASS: 'button-following',
   }
-  const LIKE_BUTTON_CLICKED_CLASS = 'button--fire'
 
   const autoLikedVideoIds = []
 
@@ -95,43 +98,55 @@
 
   function watchThresholdReached () {
     const player = document.querySelector(SELECTORS.PLAYER)
-    if (player && player.clientHeight > 288) {
-      return player.currentTime / player.duration >= (GM_config.get('WATCH_THRESHOLD') / 100)
+    if (!player || player.clientHeight <= 288) { // Check if player is not a mini player
+      return false
     }
-    return false
+    return player.currentTime / player.duration >= (GM_config.get('WATCH_THRESHOLD') / 100)
   }
 
   function isSubscribed () {
-    return document.querySelector(".button-group > button:nth-child(1)").classList.contains("button-following")
+    return document.querySelector(SELECTORS.FOLLOW_BUTTON).classList.contains(SELECTORS.FOLLOW_BUTTON_CLICKED_CLASS)
+  }
+
+  function isLiked(likeButton) {
+    return likeButton.classList.contains(SELECTORS.FIRE_BUTTON_CLICKED_CLASS)
   }
 
   function wait () {
-    if (watchThresholdReached()) {
-      try {
-        if (GM_config.get('LIKE_IF_NOT_SUBSCRIBED') || isSubscribed()) {
-          like()
-        }
-      } catch (e) {
-        DEBUG.info(`Failed to like video: ${e}. Will try again in ${GM_config.get('CHECK_FREQUENCY')} ms...`)
-      }
+    if (!watchThresholdReached()) {
+      setTimeout(wait, GM_config.get('CHECK_FREQUENCY'))
+      return
     }
+
+    try {
+      if (GM_config.get('LIKE_IF_NOT_SUBSCRIBED') || isSubscribed()) {
+        like()
+      }
+    } catch (e) {
+      DEBUG.info(`Failed to like video: ${e}. Will try again in ${GM_config.get('CHECK_FREQUENCY')} ms...`)
+    }
+
     setTimeout(wait, GM_config.get('CHECK_FREQUENCY'))
   }
 
   function like () {
     DEBUG.info('Trying to like video...')
-    const likeButton = document.querySelector("button.button-like:nth-child(1)")
+
+    const likeButton =  document.querySelector(SELECTORS.FIRE_BUTTON)
     if (!likeButton) {
       throw Error('Couldn\'t find like button')
     }
+
     const videoId = getVideoId()
-    if (likeButton.classList.contains(LIKE_BUTTON_CLICKED_CLASS)) {
+
+    if (isLiked(likeButton)) {
       DEBUG.info('Like button has already been clicked')
       autoLikedVideoIds.push(videoId)
-    } else if (autoLikedVideoIds.includes(videoId)) {
-      DEBUG.info('Video has already been auto-liked. User must ' +
-        'have un-liked it, so we won\'t like it again')
-    } else {
+    }
+    else if (autoLikedVideoIds.includes(videoId)) {
+      DEBUG.info('Video has already been auto-liked. User must have un-liked it, so we won\'t like it again')
+    }
+    else {
       DEBUG.info('Found like button')
       DEBUG.info('It\'s unclicked. Clicking it...')
       likeButton.click()
