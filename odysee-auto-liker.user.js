@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Odysee Auto-Liker
 // @namespace      https://github.com/Jekabs123/odysee-auto-liker
-// @version        1.0.3.2
+// @version        1.0.3.3
 // @description    Automatically likes Odysee videos
 // @author         Jekabs123 (fork from https://github.com/HatScripts/youtube-auto-liker)
 // @license        MIT
@@ -83,12 +83,12 @@
   const SELECTORS = {
     PLAYER: 'video',
   }
-  const LIKE_BUTTON_CLICKED_CLASS = 'icon--FireActive'
+  const LIKE_BUTTON_CLICKED_CLASS = 'button--fire'
 
   const autoLikedVideoIds = []
 
   setTimeout(wait, GM_config.get('CHECK_FREQUENCY'))
-  
+
   function getVideoId () {
     return location.pathname
   }
@@ -102,7 +102,7 @@
   }
 
   function isSubscribed () {
-    return document.getElementsByClassName("icon icon--HeartSolid color-override").length == 1
+    return document.querySelector(".button-group > button:nth-child(1)").classList.contains("button-following")
   }
 
   function wait () {
@@ -120,12 +120,12 @@
 
   function like () {
     DEBUG.info('Trying to like video...')
-    const likeButton = document.getElementsByClassName("button button--no-style button--file-action")[1].children[0]
+    const likeButton = document.querySelector("button.button-like:nth-child(1)")
     if (!likeButton) {
       throw Error('Couldn\'t find like button')
     }
     const videoId = getVideoId()
-    if (likeButton.children[0].classList.contains(LIKE_BUTTON_CLICKED_CLASS)) {
+    if (likeButton.classList.contains(LIKE_BUTTON_CLICKED_CLASS)) {
       DEBUG.info('Like button has already been clicked')
       autoLikedVideoIds.push(videoId)
     } else if (autoLikedVideoIds.includes(videoId)) {
