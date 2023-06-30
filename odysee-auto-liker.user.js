@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name           Odysee Auto-Liker
 // @namespace      https://github.com/Kite8409/odysee-auto-liker
-// @version        1.0.4
+// @version        1.0.5
 // @description    Automatically likes Odysee videos
 // @author         Kite8409 (fork from https://github.com/HatScripts/youtube-auto-liker)
 // @license        MIT
@@ -54,6 +54,9 @@
         default: true,
         title: 'Like videos from channels you are not following'
       }
+    },
+    events: {
+      init: onInit
     }
   })
 
@@ -61,24 +64,26 @@
     GM_config.open()
   })
 
-  function Debugger (name, enabled) {
-    this.debug = {}
-    if (!window.console) {
-      return () => {}
-    }
-    for (const m in console) {
-      if (typeof console[m] === 'function') {
-        if (enabled) {
-          this.debug[m] = console[m].bind(window.console, name + ': ')
-        } else {
-          this.debug[m] = () => {}
-        }
+  class Debugger {
+    constructor (name, enabled) {
+      this.debug = {}
+      if (!window.console) {
+        return () => { }
       }
+      Object.getOwnPropertyNames(window.console).forEach(key => {
+        if (typeof window.console[key] === 'function') {
+          if (enabled) {
+            this.debug[key] = window.console[key].bind(window.console, name + ': ')
+          } else {
+            this.debug[key] = () => { }
+          }
+        }
+      })
+      return this.debug
     }
-    return this.debug
   }
 
-  const DEBUG = new Debugger(GM_info.script.name, GM_config.get('DEBUG_MODE'))
+  var DEBUG
   // Define CSS selectors
   const SELECTORS = {
     PLAYER: 'video',
@@ -90,7 +95,10 @@
 
   const autoLikedVideoIds = []
 
-  setTimeout(wait, GM_config.get('CHECK_FREQUENCY'))
+  function onInit() {
+    DEBUG = new Debugger(GM_info.script.name, GM_config.get('DEBUG_MODE'))
+    setInterval(wait, GM_config.get('CHECK_FREQUENCY'))
+  }
 
   function getVideoId () {
     return location.pathname
@@ -117,7 +125,6 @@
       setTimeout(wait, GM_config.get('CHECK_FREQUENCY'))
       return
     }
-
     try {
       if (GM_config.get('LIKE_IF_NOT_SUBSCRIBED') || isSubscribed()) {
         like()
@@ -126,7 +133,7 @@
       DEBUG.info(`Failed to like video: ${e}. Will try again in ${GM_config.get('CHECK_FREQUENCY')} ms...`)
     }
 
-    setTimeout(wait, GM_config.get('CHECK_FREQUENCY'))
+    setInterval(wait, GM_config.get('CHECK_FREQUENCY'))
   }
 
   function like () {
