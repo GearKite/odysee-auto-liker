@@ -7,7 +7,7 @@
 // @license        MIT
 // @icon           https://raw.githubusercontent.com/Kite8409/odysee-auto-liker/master/logo.svg
 // @match          http*://odysee.com/*
-// @require        https://openuserjs.org/src/libs/sizzle/GM_config.js
+// @require        https://github.com/sizzlemctwizzle/GM_config/raw/master/gm_config.js
 // @grant          GM_getValue
 // @grant          GM_setValue
 // @grant          GM_registerMenuCommand
